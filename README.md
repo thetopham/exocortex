@@ -211,7 +211,17 @@ First three connectors:
    uvicorn exocortex.app:app --host 0.0.0.0 --port 8081
    ```
 
-6. Test a manual event:
+6. Send a manual note from your PC:
+
+   ```bash
+   python scripts/manual_note_cli.py "Walk idea: voice UI" \
+     --text "Try a push-to-talk shortcut that posts transcripts" \
+     --tags exo,idea,walk
+   ```
+
+   The CLI defaults to posting to `http://localhost:8081/events` with `source_system=manual_pc` and `channel=note`. Use `--api-url` to target a remote Pi.
+
+7. Test a manual event:
 
    ```bash
    curl -X POST http://pi.local:8081/events \
@@ -230,7 +240,7 @@ First three connectors:
      }'
    ```
 
-Then open the web UI (e.g. `http://pi.local:8081/`) and confirm the event appears.
+Then open the web UI (e.g. `http://pi.local:8081/`) to confirm the event appears and use the filters at the top to narrow by time, source, channel, or tag.
 
 ---
 
