@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exocortex Timeline</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sakura.css/css/sakura.css" />
+  <style>
+    .event { border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+    .meta { color: #555; font-size: 0.9em; }
+    .tags span { background: #eef; color: #224; padding: 2px 6px; margin-right: 6px; border-radius: 4px; }
+    .filters { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Today's Events</h1>
+
+  <form method="get" class="filters">
+    <label>Source System: <input type="text" name="source_system" value="{{ filters.source_system }}" /></label>
+    <label>Tag: <input type="text" name="tag" value="{{ filters.tag }}" /></label>
+    <button type="submit">Filter</button>
+  </form>
+
+  {% if events %}
+    {% for event in events %}
+      <div class="event">
+        <div class="meta">
+          <strong>{{ event.summary or event.channel }}</strong> —
+          <em>{{ event.timestamp }}</em> —
+          <span>{{ event.source_system }}</span>
+          {% if event.actor %} — <span>{{ event.actor }}</span>{% endif %}
+        </div>
+        {% if event.content_text %}
+          <p>{{ event.content_text }}</p>
+        {% endif %}
+        {% if event.tags %}
+          <div class="tags">
+            {% for tag in event.tags %}
+              <span>#{{ tag }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No events yet today.</p>
+  {% endif %}
+</body>
+</html>
