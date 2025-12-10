@@ -94,11 +94,11 @@ Internally this is stored in SQLite (v0/v1) with JSON/text columns for flexible 
 
 ### v0 – exocortex Spine
 
-- [ ] FastAPI/Flask server running on the Pi.
-- [ ] SQLite `events` table + basic indexes.
-- [ ] `POST /events` – ingest events.
-- [ ] `GET /events` – list/filter events.
-- [ ] Simple HTML “Today’s Events” view.
+- [x] FastAPI server running on the Pi.
+- [x] SQLite `events` table + basic indexes.
+- [x] `POST /events` – ingest events.
+- [x] `GET /events` – list/filter events.
+- [x] Simple HTML “Today’s Events” view.
 
 ### v1 – Real Connectors
 
@@ -134,7 +134,7 @@ First three connectors:
 - SQLite
 - `pip` for Python deps
 
-### Setup (rough sketch)
+### Setup (current v0)
 
 1. Clone the repo:
 
@@ -150,28 +150,22 @@ First three connectors:
    source .venv/bin/activate   # or .venv\Scripts\activate on Windows
    ```
 
-3. Install dependencies (to be defined):
+3. Install dependencies:
 
    ```bash
-   pip install fastapi uvicorn sqlite-utils
+   pip install -r requirements.txt
    ```
 
-4. Initialize the database:
-
-   ```bash
-   python scripts/init_db.py
-   ```
-
-5. Run the server:
+4. Run the server:
 
    ```bash
    uvicorn exocortex.app:app --host 0.0.0.0 --port 8081
    ```
 
-6. Test a manual event:
+5. Test a manual event:
 
    ```bash
-   curl -X POST http://pi.local:8081/events \
+   curl -X POST http://localhost:8081/events \
      -H "Content-Type: application/json" \
      -d '{
        "timestamp": "2025-12-09T15:23:11-07:00",
@@ -187,7 +181,7 @@ First three connectors:
      }'
    ```
 
-Then open the web UI (e.g. `http://pi.local:8081/`) and confirm the event appears.
+Then open the web UI at `http://localhost:8081/` to view today's events, or query `/events` with filters.
 
 ---
 
