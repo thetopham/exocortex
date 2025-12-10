@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exocortex Timeline</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #0c0c0f; color: #f2f2f2; margin: 0; padding: 1.5rem; }
+        h1 { margin-top: 0; }
+        .event { background: #16161d; border: 1px solid #222233; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .meta { color: #9aa0b3; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .tags span { background: #2a2a3a; color: #cbd5ff; padding: 0.2rem 0.6rem; border-radius: 999px; margin-right: 0.3rem; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <h1>Today's Events</h1>
+    {% if events %}
+        {% for event in events %}
+            <div class="event">
+                <div class="meta">
+                    <strong>{{ event['summary'] or 'No summary' }}</strong><br>
+                    {{ event['timestamp'] }} &middot; {{ event['source_system'] }} / {{ event['channel'] }}
+                    {% if event['actor'] %} &middot; Actor: {{ event['actor'] }}{% endif %}
+                    {% if event['direction'] %} &middot; {{ event['direction'] }}{% endif %}
+                </div>
+                {% if event['content_text'] %}<p>{{ event['content_text'] }}</p>{% endif %}
+                {% if event['tags'] %}
+                    <div class="tags">
+                        {% for tag in event['tags'] %}
+                            <span>{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No events logged yet. POST an event to <code>/events</code> to get started.</p>
+    {% endif %}
+</body>
+</html>
