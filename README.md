@@ -150,25 +150,19 @@ First three connectors:
    source .venv/bin/activate   # or .venv\Scripts\activate on Windows
    ```
 
-3. Install dependencies (to be defined):
+3. Install dependencies:
 
    ```bash
-   pip install fastapi uvicorn sqlite-utils
+   pip install -r requirements.txt
    ```
 
-4. Initialize the database:
-
-   ```bash
-   python scripts/init_db.py
-   ```
-
-5. Run the server:
+4. Run the server:
 
    ```bash
    uvicorn exocortex.app:app --host 0.0.0.0 --port 8081
    ```
 
-6. Test a manual event:
+5. Test a manual event:
 
    ```bash
    curl -X POST http://pi.local:8081/events \
@@ -191,29 +185,53 @@ Then open the web UI (e.g. `http://pi.local:8081/`) and confirm the event appear
 
 ---
 
+## 🟢 v0 Implementation (current)
+
+The first cut of the spine is now live in this repo:
+
+- **FastAPI** app with `/events` POST + GET.
+- **SQLite** event store with simple indexes.
+- **Minimal UI** at `/` for “today’s events” and quick manual note capture.
+
+### Run locally
+
+```bash
+pip install -r requirements.txt
+uvicorn exocortex.app:app --host 0.0.0.0 --port 8081
+```
+
+The server creates `data/exocortex.db` on first start.
+
+### API
+
+- `POST /events` – accepts the event shape from the model above (no `id`/`ingested_at` needed). Server fills in `id`, `ingested_at`, normalizes tags, and derives a summary when missing.
+- `GET /events` – query params: `from`, `to`, `source_system`, `channel`, `tag`, `limit` (default 50, max 500). Returns events sorted newest first.
+- `GET /` – HTML view for today’s events plus a manual note form (posts to `/events`).
+- `GET /health` – lightweight health check.
+
+### UI Notes
+
+- Tags are normalized to lowercase.
+- Summary defaults to the first 80 chars of the text body when not provided.
+- Events listed on `/` default to “today” (UTC) and update after submission.
+
+---
+
 ## 📂 Suggested Repo Structure
 
 ```text
 .
 ├─ README.md
-├─ docs/
-│  ├─ prd.md
-│  └─ implementation.md
-├─ exocortex/
-│  ├─ app.py            # FastAPI/Flask entrypoint
-│  ├─ models.py         # Event model / DB schema
-│  ├─ db.py             # DB connection & migration helpers
-│  ├─ routes.py         # /events, UI routes
-│  ├─ templates/        # HTML templates for timeline UI
-│  └─ static/           # CSS/JS (if needed)
-├─ connectors/
-│  ├─ manual_note_cli/
-│  ├─ omi_sync/
-│  ├─ gmail_sync/
-│  └─ ...
-└─ scripts/
-   ├─ init_db.py
-   └─ dev_utils.py
+├─ prd.md
+├─ implementation.md
+├─ requirements.txt
+├─ data/
+│  └─ exocortex.db            # created at runtime
+└─ exocortex/
+   ├─ app.py                  # FastAPI entrypoint + routes
+   ├─ db.py                   # SQLite helpers
+   ├─ models.py               # Pydantic models
+   └─ templates/              # Minimal timeline UI
 ```
 
 ---

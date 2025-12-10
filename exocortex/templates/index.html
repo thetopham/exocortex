@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sovereign Exocortex</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0f172a;
+        --panel: #1e293b;
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #22c55e;
+        --border: #2d3b55;
+      }
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        padding: 24px;
+        background: linear-gradient(120deg, #0ea5e9, #22c55e);
+        color: #0b1221;
+      }
+      header h1 {
+        margin: 0 0 4px;
+        font-size: 28px;
+      }
+      header p {
+        margin: 0;
+        color: #072f49;
+      }
+      main {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 1fr 2fr;
+        padding: 20px;
+      }
+      section {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+      h2 {
+        margin-top: 0;
+        font-size: 18px;
+        letter-spacing: 0.01em;
+      }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      input,
+      textarea,
+      select,
+      button {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #0b1221;
+        color: var(--text);
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+      button {
+        margin-top: 10px;
+        background: linear-gradient(120deg, #22c55e, #0ea5e9);
+        color: #0b1221;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+      }
+      .event {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
+        background: #0b1221;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+      .tag {
+        background: rgba(34, 197, 94, 0.15);
+        color: #86efac;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+      .summary {
+        font-weight: 600;
+        margin: 0 0 6px;
+      }
+      .content {
+        margin: 0;
+        line-height: 1.5;
+      }
+      .empty {
+        color: var(--muted);
+        text-align: center;
+        margin-top: 20px;
+      }
+      @media (max-width: 960px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🧠 Sovereign Exocortex</h1>
+      <p>Local-first event spine. Everything lands here first.</p>
+    </header>
+    <main>
+      <section>
+        <h2>Log a manual note</h2>
+        <form id="add-form">
+          <label for="summary">Summary</label>
+          <input type="text" id="summary" name="summary" placeholder="Quick summary" />
+
+          <label for="content">Details</label>
+          <textarea id="content" name="content" placeholder="What's on your mind?"></textarea>
+
+          <label for="tags">Tags (comma separated)</label>
+          <input type="text" id="tags" name="tags" placeholder="exo, note" />
+
+          <label for="timestamp">Timestamp</label>
+          <input
+            type="datetime-local"
+            id="timestamp"
+            name="timestamp"
+            value="{{ default_timestamp[:-1] if default_timestamp.endswith('Z') else default_timestamp }}"
+          />
+
+          <button type="submit">Save event</button>
+        </form>
+      </section>
+      <section>
+        <h2>Today&apos;s events</h2>
+        {% if events %}
+        {% for event in events %}
+        <div class="event">
+          <div class="meta">
+            <span>{{ event.timestamp.isoformat() }}</span>
+            <span>{{ event.source_system }} · {{ event.channel }}</span>
+          </div>
+          {% if event.summary %}
+          <p class="summary">{{ event.summary }}</p>
+          {% endif %}
+          {% if event.content and event.content.text %}
+          <p class="content">{{ event.content.text }}</p>
+          {% endif %}
+          {% if event.tags %}
+          <div class="tags">
+            {% for tag in event.tags %}
+            <span class="tag">#{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="empty">No events yet. Add your first note!</p>
+        {% endif %}
+      </section>
+    </main>
+    <script>
+      const form = document.getElementById("add-form");
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const summary = document.getElementById("summary").value;
+        const content = document.getElementById("content").value;
+        const tagsInput = document.getElementById("tags").value;
+        const timestampInput = document.getElementById("timestamp").value;
+
+        const payload = {
+          timestamp: new Date(timestampInput || Date.now()).toISOString(),
+          source_system: "manual",
+          channel: "note",
+          actor: "matt",
+          direction: "outbound",
+          summary: summary || content.slice(0, 80),
+          content: {
+            text: content,
+            data: {},
+          },
+          tags: tagsInput
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter(Boolean),
+          links: {},
+          raw: {},
+        };
+
+        const response = await fetch("/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          const body = await response.json();
+          alert(body.detail || "Failed to save event");
+        }
+      });
+    </script>
+  </body>
+</html>
