@@ -159,7 +159,7 @@ First three connectors:
 4. Initialize the database:
 
    ```bash
-   python scripts/init_db.py
+   python -c "from exocortex import db; db.init_db()"
    ```
 
 5. Run the server:

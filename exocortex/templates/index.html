@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exocortex – Today's Events</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Exocortex</h1>
+      <p class="subtitle">Today ({{ today }})</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Add a quick note</h2>
+      <form method="post" action="/add-note" class="note-form">
+        <label>
+          Summary
+          <input type="text" name="summary" placeholder="Walked Odin and planned study schedule" required />
+        </label>
+        <label>
+          Text
+          <textarea name="text" rows="3" placeholder="Optional longer text"></textarea>
+        </label>
+        <label>
+          Tags (comma separated)
+          <input type="text" name="tags" placeholder="exo, school" />
+        </label>
+        <label>
+          Source system
+          <input type="text" name="source_system" value="manual_note" />
+        </label>
+        <button type="submit">Save note</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Events</h2>
+      {% if events %}
+        <ul class="events">
+          {% for event in events %}
+            <li class="event">
+              <div class="event-meta">
+                <span class="timestamp">{{ event.timestamp }}</span>
+                <span class="pill">{{ event.source_system }}</span>
+                <span class="pill pill-secondary">{{ event.channel }}</span>
+                {% if event.tags %}
+                  <span class="tags">{{ ', '.join(event.tags) }}</span>
+                {% endif %}
+              </div>
+              <div class="event-body">
+                <p class="summary">{{ event.summary or '(no summary)' }}</p>
+                {% if event.content and event.content.text %}
+                  <p class="content">{{ event.content.text }}</p>
+                {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">No events yet today. Add a note above or POST to /events.</p>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
