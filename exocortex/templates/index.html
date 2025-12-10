@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sovereign Exocortex</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; background: #0d1117; color: #e6edf3; }
+      h1 { color: #7ee787; }
+      form { margin-bottom: 2rem; }
+      label { display: block; margin: 0.5rem 0 0.25rem; }
+      input[type="text"], textarea { width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #e6edf3; }
+      button { margin-top: 0.75rem; padding: 0.5rem 1rem; border: none; background: #1f6feb; color: #fff; border-radius: 6px; cursor: pointer; }
+      button:hover { background: #1158c7; }
+      .event { border: 1px solid #30363d; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; background: #161b22; }
+      .meta { color: #8b949e; font-size: 0.9rem; }
+      .tags span { display: inline-block; background: #238636; padding: 0.2rem 0.5rem; border-radius: 999px; margin-right: 0.3rem; font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Today's Events</h1>
+    <form method="post" action="/add">
+      <h2>Add a quick note</h2>
+      <label for="summary">Summary</label>
+      <input type="text" id="summary" name="summary" required />
+
+      <label for="content">Details</label>
+      <textarea id="content" name="content" rows="3"></textarea>
+
+      <label for="tags">Tags (comma-separated)</label>
+      <input type="text" id="tags" name="tags" placeholder="school, csci3308" />
+
+      <button type="submit">Save</button>
+    </form>
+
+    {% for event in events %}
+    <div class="event">
+      <div class="meta">{{ event.timestamp }} • {{ event.source_system }} / {{ event.channel }} • {{ event.direction or "" }}</div>
+      <h3>{{ event.summary or '(no summary)' }}</h3>
+      <p>{{ event.content.text or '' }}</p>
+      {% if event.tags %}
+      <div class="tags">
+        {% for tag in event.tags %}
+          <span>{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <p>No events yet for today.</p>
+    {% endfor %}
+  </body>
+</html>

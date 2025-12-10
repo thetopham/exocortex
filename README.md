@@ -150,10 +150,10 @@ First three connectors:
    source .venv/bin/activate   # or .venv\Scripts\activate on Windows
    ```
 
-3. Install dependencies (to be defined):
+3. Install dependencies:
 
    ```bash
-   pip install fastapi uvicorn sqlite-utils
+   pip install -r requirements.txt
    ```
 
 4. Initialize the database:
@@ -162,13 +162,13 @@ First three connectors:
    python scripts/init_db.py
    ```
 
-5. Run the server:
+5. Run the server (served on all interfaces for LAN access):
 
    ```bash
    uvicorn exocortex.app:app --host 0.0.0.0 --port 8081
    ```
 
-6. Test a manual event:
+6. Test a manual event (or use the built-in form at `/`):
 
    ```bash
    curl -X POST http://pi.local:8081/events \
@@ -187,7 +187,7 @@ First three connectors:
      }'
    ```
 
-Then open the web UI (e.g. `http://pi.local:8081/`) and confirm the event appears.
+Then open the web UI (e.g. `http://pi.local:8081/`) and confirm the event appears. You can also add notes directly from the page; they will be saved with `source_system=manual`.
 
 ---
 
