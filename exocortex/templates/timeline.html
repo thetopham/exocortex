@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Exocortex Timeline</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0 auto; max-width: 900px; padding: 1rem; background: #f7f7f7; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    h1 { margin: 0; }
+    form.filter, form.new-event { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+    label { display: block; margin-bottom: 0.25rem; font-weight: bold; }
+    input[type="text"], textarea, select { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 0.6rem 1rem; background: #2563eb; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #1e4fbe; }
+    .event { background: #fff; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 0.75rem; }
+    .meta { color: #555; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .tags { margin-top: 0.5rem; }
+    .tag { display: inline-block; background: #e0ecff; color: #1e3a8a; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem; margin-right: 0.35rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Today&apos;s Events</h1>
+    <div>Showing {{ events|length }} events</div>
+  </header>
+
+  <form class="filter" method="get" action="/">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+      <div>
+        <label for="source_system">Source system</label>
+        <select id="source_system" name="source_system">
+          <option value="">All</option>
+          {% for source in available_sources %}
+            <option value="{{ source }}" {% if source == source_system %}selected{% endif %}>{{ source }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="tags">Tags (comma separated)</label>
+        <input type="text" id="tags" name="tags" value="{{ tags }}" placeholder="csci3308, exo">
+        {% if available_tags %}
+          <div style="font-size: 0.9rem; color: #555;">Available: {{ available_tags | join(', ') }}</div>
+        {% endif %}
+      </div>
+      <div style="display: flex; align-items: flex-end;">
+        <button type="submit">Apply Filters</button>
+      </div>
+    </div>
+  </form>
+
+  <form class="new-event" method="post" action="/ui/events">
+    <h2>Quick Note</h2>
+    <label for="summary">Summary</label>
+    <input type="text" id="summary" name="summary" required placeholder="Short summary">
+    <label for="content_text">Details</label>
+    <textarea id="content_text" name="content_text" rows="3" placeholder="Optional longer text"></textarea>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+      <div>
+        <label for="source_system">Source system</label>
+        <input type="text" id="source_system" name="source_system" value="manual_note">
+      </div>
+      <div>
+        <label for="tags">Tags (comma separated)</label>
+        <input type="text" id="tags" name="tags" placeholder="exo, idea">
+      </div>
+    </div>
+    <button type="submit">Add Event</button>
+  </form>
+
+  {% for event in events %}
+    <div class="event">
+      <div class="meta">
+        <strong>{{ event.summary or '(no summary)' }}</strong><br>
+        {{ event.timestamp }} • {{ event.source_system }} • {{ event.channel }}
+      </div>
+      {% if event.content.text %}
+        <div>{{ event.content.text }}</div>
+      {% endif %}
+      {% if event.tags %}
+        <div class="tags">
+          {% for tag in event.tags %}
+            <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</body>
+</html>
