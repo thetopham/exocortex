@@ -48,8 +48,8 @@ def list_events(
 
 
 @app.get("/", response_class=HTMLResponse)
-def todays_events(request: Request) -> HTMLResponse:
-    events = [dict(row) for row in db.fetch_todays_events(limit=200)]
+def recent_events(request: Request) -> HTMLResponse:
+    events = [dict(row) for row in db.fetch_events(limit=200)]
     for event in events:
         event["tags"] = json.loads(event.get("tags") or "[]")
     return templates.TemplateResponse("events.html", {"request": request, "events": events})
