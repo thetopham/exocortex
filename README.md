@@ -143,6 +143,22 @@ Internally this is stored in SQLite (v0/v1) with JSON/text columns for flexible 
 
 5. Open `http://localhost:8081/` to see today’s events rendered in the timeline.
 
+6. Send a manual note via CLI:
+
+   ```bash
+   python scripts/note_cli.py "Walking Odin, came up with exocortex idea" \
+     --url http://localhost:8081/events \
+     --source-system pc_manual --channel note --tag exo --tag idea
+   ```
+
+   The CLI normalizes tags to lowercase and auto-fills the timestamp and summary for quick manual logging.
+
+7. Filter the timeline in the UI:
+
+   - Use the **Start/End** fields (ISO `datetime-local` format) to bound the time range.
+   - Filter by **source_system**, **channel**, or a **tag** substring.
+   - Click **Reset** to return to the latest 200 events.
+
 ### v1 – Real Connectors
 
 First three connectors:
