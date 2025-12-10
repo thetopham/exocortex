@@ -143,6 +143,24 @@ Internally this is stored in SQLite (v0/v1) with JSON/text columns for flexible 
 
 5. Open `http://localhost:8081/` to see today’s events rendered in the timeline.
 
+The web UI now includes tag, source-system, and channel filters. Use the form at the top of the page or click on any tag pill to scope the timeline to that tag.
+
+#### Manual note CLI (Milestone 2)
+
+With the server running, you can post quick notes from your terminal using the included helper script:
+
+```bash
+python scripts/post_note.py "Quick standup notes" "shipped milestone 2 UI filters" --tags project,exo --actor matt
+```
+
+Flags allow you to control the source/channel labels, tags, and timestamp:
+
+```bash
+python scripts/post_note.py "Walk with Odin" "Noticed new coffee spot" --source-system s25_shortcut --channel note --tags personal,outdoors
+```
+
+The script defaults to `http://localhost:8081`; override with `--base-url` for remote deployments.
+
 ### v1 – Real Connectors
 
 First three connectors:

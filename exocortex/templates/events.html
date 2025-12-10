@@ -7,6 +7,12 @@
     <style>
         body { font-family: Arial, sans-serif; background: #0c0c0f; color: #f2f2f2; margin: 0; padding: 1.5rem; }
         h1 { margin-top: 0; }
+        .filters { background: #12121a; border: 1px solid #222233; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+        .filters label { display: block; margin-bottom: 0.6rem; color: #9aa0b3; }
+        .filters input { width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #2a2a3a; background: #0c0c10; color: #f2f2f2; }
+        .filters button { margin-top: 0.5rem; background: #3c82f6; color: #f9f9ff; border: none; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; }
+        .filters button:hover { background: #2f6bd1; }
+        .tag-cloud span { display: inline-block; background: #1c1c26; color: #cbd5ff; padding: 0.3rem 0.6rem; border-radius: 999px; margin: 0.2rem 0.2rem 0 0; font-size: 0.85rem; }
         .event { background: #16161d; border: 1px solid #222233; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
         .meta { color: #9aa0b3; font-size: 0.9rem; margin-bottom: 0.5rem; }
         .tags span { background: #2a2a3a; color: #cbd5ff; padding: 0.2rem 0.6rem; border-radius: 999px; margin-right: 0.3rem; font-size: 0.85rem; }
@@ -14,6 +20,30 @@
 </head>
 <body>
     <h1>Recent Events</h1>
+    <form method="get" class="filters">
+        <label>
+            Tag
+            <input type="text" name="tag" placeholder="e.g. project, school" value="{{ filters['tag'] or '' }}" />
+        </label>
+        <label>
+            Source System
+            <input type="text" name="source_system" placeholder="e.g. manual_cli, gmail" value="{{ filters['source_system'] or '' }}" />
+        </label>
+        <label>
+            Channel
+            <input type="text" name="channel" placeholder="e.g. note, email" value="{{ filters['channel'] or '' }}" />
+        </label>
+        <button type="submit">Apply Filters</button>
+    </form>
+
+    {% if available_tags %}
+        <div class="tag-cloud">
+            {% for tag_option in available_tags %}
+                <a href="/?tag={{ tag_option }}" style="text-decoration:none;"><span>{{ tag_option }}</span></a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     {% if events %}
         {% for event in events %}
             <div class="event">

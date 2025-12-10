@@ -48,9 +48,31 @@ def list_events(
 
 
 @app.get("/", response_class=HTMLResponse)
-def recent_events(request: Request) -> HTMLResponse:
-    events = [dict(row) for row in db.fetch_events(limit=200)]
+def recent_events(
+    request: Request,
+    source_system: Optional[str] = Query(default=None, description="Filter by source system"),
+    channel: Optional[str] = Query(default=None, description="Filter by channel"),
+    tag: Optional[str] = Query(default=None, description="Filter by tag"),
+) -> HTMLResponse:
+    events = [
+        dict(row)
+        for row in db.fetch_events(
+            source_system=source_system, channel=channel, tag=tag, limit=200
+        )
+    ]
+    available_tags = set()
     for event in events:
-        event["tags"] = json.loads(event.get("tags") or "[]")
-    return templates.TemplateResponse("events.html", {"request": request, "events": events})
+        event_tags = json.loads(event.get("tags") or "[]")
+        event["tags"] = event_tags
+        available_tags.update(event_tags)
+
+    return templates.TemplateResponse(
+        "events.html",
+        {
+            "request": request,
+            "events": events,
+            "filters": {"source_system": source_system, "channel": channel, "tag": tag},
+            "available_tags": sorted(available_tags),
+        },
+    )
 
