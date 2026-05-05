@@ -1,3 +1,8 @@
+## Guides
+
+- [How I Created an Exocortex Brain from My ChatGPT History](docs/how-to-create-an-exocortex-brain.md)
+
+
 # 🧠 Sovereign Exocortex 
 
 > _“We’re taking back our data from the corps and empowering the sovereign individual.”_
