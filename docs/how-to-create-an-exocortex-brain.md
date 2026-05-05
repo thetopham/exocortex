@@ -58,7 +58,7 @@ The AI does not need a huge framework. It needs clear rules:
 - let the human curate
 
 if you want my version:
-- [llm-wiki-skill](docs/llm-wiki-skill-v1.md)
+- [llm-wiki-skill](llm-wiki-skill-v1.md)
 ---
 
 ## 3. Create the LLM Wiki Brain Folder
