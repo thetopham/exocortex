@@ -12,6 +12,8 @@ Download ChatGPT history → create simple wiki skill → run Codex over export 
 
 ---
 
+
+
 ## 1. Download All ChatGPT Conversations
 
 First, I downloaded my ChatGPT conversation export.
@@ -55,6 +57,8 @@ The AI does not need a huge framework. It needs clear rules:
 - keep an index and log
 - let the human curate
 
+if you want my version:
+- [llm-wiki-skill](docs/llm-wiki-skill-v1.md)
 ---
 
 ## 3. Create the LLM Wiki Brain Folder
