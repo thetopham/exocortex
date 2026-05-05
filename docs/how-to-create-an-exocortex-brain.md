@@ -6,9 +6,9 @@ The goal was not to build a perfect knowledge system on day one. The goal was to
 
 The basic loop was:
 
-```text
+
 Download ChatGPT history → create simple wiki skill → run Codex over export files → generate markdown wiki → browse in Obsidian → version with GitHub → improve later
-```
+
 
 ---
 
