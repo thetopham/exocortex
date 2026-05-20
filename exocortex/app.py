@@ -47,10 +47,41 @@ def list_events(
     return [dict(row) for row in events]
 
 
+def _parse_datetime(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
 @app.get("/", response_class=HTMLResponse)
 def recent_events(request: Request) -> HTMLResponse:
-    events = [dict(row) for row in db.fetch_events(limit=200)]
+    filters = {
+        "start": request.query_params.get("start") or "",
+        "end": request.query_params.get("end") or "",
+        "source_system": request.query_params.get("source_system") or "",
+        "channel": request.query_params.get("channel") or "",
+        "tag": request.query_params.get("tag") or "",
+    }
+
+    events = [
+        dict(row)
+        for row in db.fetch_events(
+            start=_parse_datetime(filters["start"]),
+            end=_parse_datetime(filters["end"]),
+            source_system=filters["source_system"],
+            channel=filters["channel"],
+            tag=filters["tag"],
+            limit=200,
+        )
+    ]
+
     for event in events:
         event["tags"] = json.loads(event.get("tags") or "[]")
-    return templates.TemplateResponse("events.html", {"request": request, "events": events})
+
+    return templates.TemplateResponse(
+        "events.html", {"request": request, "events": events, "filters": filters}
+    )
 

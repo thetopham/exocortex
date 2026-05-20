@@ -14,6 +14,33 @@
 </head>
 <body>
     <h1>Recent Events</h1>
+
+    <form method="get" style="margin-bottom: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; align-items: end;">
+        <div>
+            <label for="start">Start</label><br>
+            <input type="datetime-local" id="start" name="start" value="{{ filters.start }}" />
+        </div>
+        <div>
+            <label for="end">End</label><br>
+            <input type="datetime-local" id="end" name="end" value="{{ filters.end }}" />
+        </div>
+        <div>
+            <label for="source_system">Source system</label><br>
+            <input type="text" id="source_system" name="source_system" placeholder="manual_pc" value="{{ filters.source_system }}" />
+        </div>
+        <div>
+            <label for="channel">Channel</label><br>
+            <input type="text" id="channel" name="channel" placeholder="note" value="{{ filters.channel }}" />
+        </div>
+        <div>
+            <label for="tag">Tag</label><br>
+            <input type="text" id="tag" name="tag" placeholder="exo" value="{{ filters.tag }}" />
+        </div>
+        <div>
+            <button type="submit" style="padding: 0.6rem 1rem; border: none; border-radius: 6px; background: #4b72ff; color: white; cursor: pointer;">Apply filters</button>
+        </div>
+    </form>
+
     {% if events %}
         {% for event in events %}
             <div class="event">
