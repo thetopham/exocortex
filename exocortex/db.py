@@ -137,3 +137,15 @@ def fetch_todays_events(limit: int = 100) -> List[sqlite3.Row]:
     end = start + timedelta(days=1)
     return fetch_events(start=start, end=end, limit=limit)
 
+
+def fetch_distinct_values(column: str) -> List[str]:
+    """Return distinct, non-empty values for a column in events."""
+
+    if column not in {"source_system", "channel", "actor", "direction"}:
+        raise ValueError("Unsupported column for distinct query")
+
+    query = f"SELECT DISTINCT {column} FROM events WHERE {column} IS NOT NULL AND {column} != '' ORDER BY {column}"
+    with get_connection() as conn:
+        cur = conn.execute(query)
+        return [row[0] for row in cur.fetchall() if row[0] is not None]
+

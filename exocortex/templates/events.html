@@ -5,36 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exocortex Timeline</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #0c0c0f; color: #f2f2f2; margin: 0; padding: 1.5rem; }
-        h1 { margin-top: 0; }
-        .event { background: #16161d; border: 1px solid #222233; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
-        .meta { color: #9aa0b3; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        :root {
+            --bg: #0c0c0f;
+            --panel: #16161d;
+            --panel-alt: #1f1f29;
+            --border: #222233;
+            --text: #f2f2f2;
+            --muted: #9aa0b3;
+            --accent: #6ea8ff;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1.5rem; }
+        h1 { margin: 0 0 0.5rem 0; }
+        p.lede { color: var(--muted); margin-top: 0; }
+        a { color: var(--accent); }
+
+        .layout { display: grid; gap: 1rem; grid-template-columns: 320px 1fr; align-items: start; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+        form .field { margin-bottom: 0.9rem; display: flex; flex-direction: column; gap: 0.35rem; }
+        label { font-weight: bold; color: var(--muted); font-size: 0.9rem; }
+        input, select, textarea { background: var(--panel-alt); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.55rem 0.7rem; }
+        textarea { min-height: 120px; }
+        button { cursor: pointer; background: var(--accent); color: #0b1020; border: none; border-radius: 8px; padding: 0.65rem 1rem; font-weight: bold; }
+        .inline { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+        .inline-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+
+        .event { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .tags { margin-top: 0.35rem; }
         .tags span { background: #2a2a3a; color: #cbd5ff; padding: 0.2rem 0.6rem; border-radius: 999px; margin-right: 0.3rem; font-size: 0.85rem; }
+        .content { margin: 0.35rem 0; line-height: 1.5; }
+
+        @media (max-width: 960px) {
+            .layout { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <h1>Recent Events</h1>
-    {% if events %}
-        {% for event in events %}
-            <div class="event">
-                <div class="meta">
-                    <strong>{{ event['summary'] or 'No summary' }}</strong><br>
-                    {{ event['timestamp'] }} &middot; {{ event['source_system'] }} / {{ event['channel'] }}
-                    {% if event['actor'] %} &middot; Actor: {{ event['actor'] }}{% endif %}
-                    {% if event['direction'] %} &middot; {{ event['direction'] }}{% endif %}
-                </div>
-                {% if event['content_text'] %}<p>{{ event['content_text'] }}</p>{% endif %}
-                {% if event['tags'] %}
-                    <div class="tags">
-                        {% for tag in event['tags'] %}
-                            <span>{{ tag }}</span>
-                        {% endfor %}
+    <header style="margin-bottom: 1rem;">
+        <h1>Exocortex Timeline</h1>
+        <p class="lede">Filter your event stream and add quick notes straight from the browser.</p>
+    </header>
+
+    <div class="layout">
+        <section class="card" aria-label="Filter events">
+            <h2 style="margin-top: 0;">Filters</h2>
+            <form method="get" action="/" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="inline">
+                    <div class="field">
+                        <label for="start">From</label>
+                        <input type="date" id="start" name="start" value="{{ filters.start or '' }}">
                     </div>
-                {% endif %}
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No events logged yet. POST an event to <code>/events</code> to get started.</p>
-    {% endif %}
+                    <div class="field">
+                        <label for="end">To</label>
+                        <input type="date" id="end" name="end" value="{{ filters.end or '' }}">
+                    </div>
+                </div>
+
+                <div class="inline">
+                    <div class="field">
+                        <label for="source_system">Source</label>
+                        <select id="source_system" name="source_system">
+                            <option value="">Any</option>
+                            {% for source in filter_options.source_systems %}
+                                <option value="{{ source }}" {% if filters.source_system == source %}selected{% endif %}>{{ source }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="channel">Channel</label>
+                        <select id="channel" name="channel">
+                            <option value="">Any</option>
+                            {% for ch in filter_options.channels %}
+                                <option value="{{ ch }}" {% if filters.channel == ch %}selected{% endif %}>{{ ch }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="tag">Tag</label>
+                    <input type="text" id="tag" name="tag" placeholder="e.g. csci3308" value="{{ filters.tag or '' }}">
+                </div>
+
+                <button type="submit">Apply filters</button>
+            </form>
+        </section>
+
+        <section class="card" aria-label="Add note">
+            <h2 style="margin-top: 0;">Add Note</h2>
+            <form method="post" action="/notes" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="field">
+                    <label for="summary">Summary (optional)</label>
+                    <input type="text" id="summary" name="summary" placeholder="Short headline">
+                </div>
+                <div class="field">
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" placeholder="Write your note" required></textarea>
+                </div>
+                <div class="field">
+                    <label for="tags">Tags</label>
+                    <input type="text" id="tags" name="tags" placeholder="comma,separated,tags">
+                </div>
+                <div class="inline">
+                    <div class="field">
+                        <label for="source_system">Source system</label>
+                        <input type="text" id="source_system" name="source_system" value="manual">
+                    </div>
+                    <div class="field">
+                        <label for="channel">Channel</label>
+                        <input type="text" id="channel" name="channel" value="note">
+                    </div>
+                </div>
+                <div class="inline">
+                    <div class="field">
+                        <label for="actor">Actor (optional)</label>
+                        <input type="text" id="actor" name="actor" placeholder="matt">
+                    </div>
+                    <div class="field">
+                        <label for="direction">Direction (optional)</label>
+                        <input type="text" id="direction" name="direction" placeholder="outbound">
+                    </div>
+                </div>
+                <button type="submit">Save note</button>
+            </form>
+        </section>
+    </div>
+
+    <section style="margin-top: 1.5rem;">
+        <h2 style="margin-bottom: 0.5rem;">Recent Events</h2>
+        {% if events %}
+            {% for event in events %}
+                <div class="event">
+                    <div class="meta">
+                        <strong>{{ event['summary'] or 'No summary' }}</strong><br>
+                        {{ event['timestamp'] }} &middot; {{ event['source_system'] }} / {{ event['channel'] }}
+                        {% if event['actor'] %} &middot; Actor: {{ event['actor'] }}{% endif %}
+                        {% if event['direction'] %} &middot; {{ event['direction'] }}{% endif %}
+                    </div>
+                    {% if event['content_text'] %}<p class="content">{{ event['content_text'] }}</p>{% endif %}
+                    {% if event['tags'] %}
+                        <div class="tags">
+                            {% for tag in event['tags'] %}
+                                <span>{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if event['links'] and event['links'].external_url %}
+                        <p class="meta">Link: <a href="{{ event['links'].external_url }}" target="_blank">{{ event['links'].external_url }}</a></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="meta">No events logged yet. POST an event to <code>/events</code> or add a note above to get started.</p>
+        {% endif %}
+    </section>
 </body>
 </html>
